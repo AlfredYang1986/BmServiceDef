@@ -102,6 +102,11 @@ func (p *Pod) CreateResourceInstances() {
 			args = append(args, tmp)
 		}
 
+		for _, s := range r.Friendly{
+			tmp := p.Resources[s] //BmFactory.GetStorageByName(s)
+			args = append(args, tmp)
+		}
+
 		inc, _ := BmSingleton.GetFactoryInstance().ReflectFunctionCall(any, name, args)
 		p.Resources[r.Name] = inc.Interface()
 	}

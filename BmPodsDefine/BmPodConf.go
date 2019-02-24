@@ -10,6 +10,7 @@ type Conf struct {
 		Name     string
 		Method   string
 		Storages []string
+		Friendly []string
 	}
 	Models   []string
 	Services []struct {
