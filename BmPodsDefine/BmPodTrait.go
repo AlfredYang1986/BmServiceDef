@@ -7,12 +7,12 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/alfredyang1986/BmServiceDef/BmDaemons"
 	"github.com/alfredyang1986/BmPods/BmDataStorage"
 	"github.com/alfredyang1986/BmPods/BmFactory"
 	"github.com/alfredyang1986/BmPods/BmHandler"
 	"github.com/alfredyang1986/BmPods/BmPanic"
 	"github.com/alfredyang1986/BmPods/BmResource"
+	"github.com/alfredyang1986/BmServiceDef/BmDaemons"
 	"github.com/alfredyang1986/BmServiceDef/BmSingleton"
 	"github.com/julienschmidt/httprouter"
 	"github.com/manyminds/api2go"
@@ -25,11 +25,12 @@ type Pod struct {
 	Res  map[string]interface{}
 	conf Conf
 
-	Storages   map[string]BmDataStorage.BmStorage
-	Resources  map[string]BmResource.BmRes
-	Daemons    map[string]BmDaemons.BmDaemon
-	Handler    map[string]BmHandler.BmHandler
-	Middleware map[string]BmMiddleware.BmMiddleware
+	Storages     map[string]BmDataStorage.BmStorage
+	Resources    map[string]BmResource.BmRes
+	Daemons      map[string]BmDaemons.BmDaemon
+	Handler      map[string]BmHandler.BmHandler
+	Middleware   map[string]BmMiddleware.BmMiddleware
+	PanicHandler BmHandler.BmPanicHandler
 }
 
 func (p *Pod) RegisterSerFromYAML(path string) {
@@ -52,6 +53,7 @@ func (p *Pod) RegisterSerFromYAML(path string) {
 	p.CreateResourceInstances()
 	p.CreateFunctionInstances()
 	p.CreateMiddleInstances()
+	p.CreatePanicHandleInstances()
 }
 
 func (p *Pod) CreateDaemonInstances() {
@@ -102,7 +104,7 @@ func (p *Pod) CreateResourceInstances() {
 			args = append(args, tmp)
 		}
 
-		for _, s := range r.Friendly{
+		for _, s := range r.Friendly {
 			tmp := p.Resources[s] //BmFactory.GetStorageByName(s)
 			args = append(args, tmp)
 		}
@@ -151,6 +153,18 @@ func (p *Pod) CreateMiddleInstances() {
 	}
 }
 
+func (p *Pod) CreatePanicHandleInstances() {
+	if p.PanicHandler == nil {
+		p.PanicHandler = *new(BmHandler.BmPanicHandler)
+	}
+	r := p.conf.Panic
+	any := BmFactory.GetFunctionByName(r.Name)
+	constuctor := r.Create
+	inc, _ := BmSingleton.GetFactoryInstance().ReflectFunctionCall(any, constuctor)
+	v := inc.Interface()
+	p.PanicHandler = v.(BmHandler.BmPanicHandler)
+}
+
 func (p Pod) RegisterAllResource(api *api2go.API) {
 	for _, ser := range p.conf.Services {
 		md := BmFactory.GetModelByName(ser.Model)
@@ -189,4 +203,8 @@ func (p Pod) RegisterAllMiddleware(api *api2go.API) {
 	for _, mw := range p.Middleware {
 		api.UseMiddleware(mw.DoMiddleware)
 	}
+}
+
+func (p Pod) RegisterPanicHandler(router *httprouter.Router) {
+	router.PanicHandler = p.PanicHandler.HandlePanic
 }

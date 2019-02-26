@@ -48,4 +48,8 @@ type Conf struct {
 		Daemons []string
 		Args    []string
 	}
+	Panic struct {
+		Name    string
+		Create  string
+	}
 }

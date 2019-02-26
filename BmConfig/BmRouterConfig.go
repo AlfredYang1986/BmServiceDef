@@ -13,7 +13,7 @@ type BmRouterConfig struct {
 
 func (br *BmRouterConfig) GenerateConfig() {
 	bmHome := os.Getenv("BM_HOME")
-	configPath := bmHome + "/Resources/routerconfig.json"
+	configPath := bmHome + "/resource/routerconfig.json"
 	profileItems := bmconfig.BMGetConfigMap(configPath)
 
 	br.Host = profileItems["Host"].(string)
