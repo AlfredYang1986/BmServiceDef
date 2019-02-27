@@ -2,16 +2,16 @@ package BmPodsDefine
 
 import (
 	"fmt"
-	"github.com/alfredyang1986/BmPods/BmMiddleware"
 	"io/ioutil"
 	"net/http"
 	"strings"
 
-	"github.com/alfredyang1986/BmPods/BmDataStorage"
-	"github.com/alfredyang1986/BmPods/BmFactory"
-	"github.com/alfredyang1986/BmPods/BmHandler"
-	"github.com/alfredyang1986/BmPods/BmPanic"
-	"github.com/alfredyang1986/BmPods/BmResource"
+	"github.com/alfredyang1986/BmServiceDef/BmMiddleware"
+	"github.com/alfredyang1986/BmServiceDef/BmDataStorage"
+	"github.com/alfredyang1986/BmServiceDef/BmFactory"
+	"github.com/alfredyang1986/BmServiceDef/BmHandler"
+	"github.com/alfredyang1986/BmServiceDef/BmPanic"
+	"github.com/alfredyang1986/BmServiceDef/BmResource"
 	"github.com/alfredyang1986/BmServiceDef/BmDaemons"
 	"github.com/alfredyang1986/BmServiceDef/BmSingleton"
 	"github.com/julienschmidt/httprouter"
@@ -24,6 +24,8 @@ type Pod struct {
 	Name string
 	Res  map[string]interface{}
 	conf Conf
+
+	Factory BmFactory.BmFactoryInterface
 
 	Storages     map[string]BmDataStorage.BmStorage
 	Resources    map[string]BmResource.BmRes
@@ -62,7 +64,7 @@ func (p *Pod) CreateDaemonInstances() {
 	}
 
 	for _, d := range p.conf.Daemons {
-		any := BmFactory.GetDaemonByName(d.Name)
+		any := p.Factory.GetDaemonByName(d.Name)
 		name := d.Method
 		args := d.Args
 		inc, _ := BmSingleton.GetFactoryInstance().ReflectFunctionCall(any, name, args)
@@ -77,7 +79,7 @@ func (p *Pod) CreateStorageInstances() {
 	}
 
 	for _, s := range p.conf.Storages {
-		any := BmFactory.GetStorageByName(s.Name)
+		any := p.Factory.GetStorageByName(s.Name)
 		name := s.Method
 		var args []BmDaemons.BmDaemon
 		for _, d := range s.Daemons {
@@ -96,7 +98,7 @@ func (p *Pod) CreateResourceInstances() {
 	}
 
 	for _, r := range p.conf.Resources {
-		any := BmFactory.GetResourceByName(r.Name)
+		any := p.Factory.GetResourceByName(r.Name)
 		name := r.Method
 		var args []BmDataStorage.BmStorage
 		for _, s := range r.Storages {
@@ -120,7 +122,7 @@ func (p *Pod) CreateFunctionInstances() {
 	}
 
 	for _, r := range p.conf.Functions {
-		any := BmFactory.GetFunctionByName(r.Name)
+		any := p.Factory.GetFunctionByName(r.Name)
 		constuctor := r.Create
 		var args []BmDaemons.BmDaemon
 		for _, d := range r.Daemons {
@@ -139,7 +141,7 @@ func (p *Pod) CreateMiddleInstances() {
 	}
 
 	for _, r := range p.conf.Middlewares {
-		any := BmFactory.GetMiddlewareByName(r.Name)
+		any := p.Factory.GetMiddlewareByName(r.Name)
 		constuctor := r.Create
 		var args []BmDaemons.BmDaemon
 		for _, d := range r.Daemons {
@@ -158,7 +160,7 @@ func (p *Pod) CreatePanicHandleInstances() {
 		p.PanicHandler = *new(BmHandler.BmPanicHandler)
 	}
 	r := p.conf.Panic
-	any := BmFactory.GetFunctionByName(r.Name)
+	any := p.Factory.GetFunctionByName(r.Name)
 	constuctor := r.Create
 	inc, _ := BmSingleton.GetFactoryInstance().ReflectFunctionCall(any, constuctor)
 	v := inc.Interface()
@@ -167,7 +169,7 @@ func (p *Pod) CreatePanicHandleInstances() {
 
 func (p Pod) RegisterAllResource(api *api2go.API) {
 	for _, ser := range p.conf.Services {
-		md := BmFactory.GetModelByName(ser.Model)
+		md := p.Factory.GetModelByName(ser.Model)
 		res := p.Resources[ser.Resource]
 		api.AddResource(md.(jsonapi.MarshalIdentifier), res)
 	}
