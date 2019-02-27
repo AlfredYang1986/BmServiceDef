@@ -2,7 +2,6 @@ package BmConfig
 
 import (
 	"os"
-	"github.com/alfredyang1986/blackmirror/bmconfighandle"
 )
 
 type BmRouterConfig struct {
@@ -11,10 +10,10 @@ type BmRouterConfig struct {
 	TmpDir string
 }
 
-func (br *BmRouterConfig) GenerateConfig() {
-	bmHome := os.Getenv("BM_HOME")
+func (br *BmRouterConfig) GenerateConfig(envHome string) {
+	bmHome := os.Getenv(envHome)
 	configPath := bmHome + "/resource/routerconfig.json"
-	profileItems := bmconfig.BMGetConfigMap(configPath)
+	profileItems := BMGetConfigMap(configPath)
 
 	br.Host = profileItems["Host"].(string)
 	br.Port = profileItems["Port"].(string)
