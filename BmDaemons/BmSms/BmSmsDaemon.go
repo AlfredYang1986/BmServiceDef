@@ -1,6 +1,7 @@
 package BmSms
 
 import (
+	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
@@ -12,8 +13,8 @@ type BmSms struct {
 	AccessSecret string
 	Domain       string
 	Version      string
-	ApiName      string
 	SignName     string
+	TemplateCode string
 }
 
 func (s BmSms) NewSmsDaemon(args map[string]string) *BmSms {
@@ -23,8 +24,8 @@ func (s BmSms) NewSmsDaemon(args map[string]string) *BmSms {
 		AccessSecret: args["accessSecret"],
 		Domain:       args["domain"],
 		Version:      args["version"],
-		ApiName:      args["apiName"],
 		SignName:     args["signName"],
+		TemplateCode: args["templateCode"],
 	}
 }
 
@@ -36,18 +37,39 @@ func (s BmSms) GetSmsClient() *sdk.Client {
 	return client
 }
 
-func (s BmSms) SendMsg(phoneNumber string) (error, *responses.CommonResponse) {
+func (s BmSms) SendMsg(phoneNumber string, rcode string) (error, *responses.CommonResponse) {
 	client := s.GetSmsClient()
 	req := requests.NewCommonRequest()
 	req.Method = "POST"
 	req.Scheme = "https"
 	req.Domain = s.Domain
 	req.Version = s.Version
-	req.ApiName = s.ApiName
-	req.ApiName = s.ApiName
+	req.ApiName = "SendSms"
 	req.QueryParams["RegionId"] = s.RegionId
 	req.QueryParams["PhoneNumbers"] = phoneNumber
 	req.QueryParams["SignName"] = s.SignName
+	req.QueryParams["TemplateCode"] = s.TemplateCode
+	req.QueryParams["TemplateParam"] = "{\"code\":\"" + rcode + "\"}"
+	res, err := client.ProcessCommonRequest(req)
+
+	if err != nil {
+		panic(err.Error())
+	}
+	fmt.Print(res.GetHttpContentString())
+	return err, res
+}
+
+func (s BmSms) VerifyCode(bizId string, phoneNumber string) (error, *responses.CommonResponse) {
+	client := s.GetSmsClient()
+	req := requests.NewCommonRequest()
+	req.Method = "POST"
+	req.Scheme = "https"
+	req.Domain = s.Domain
+	req.Version = s.Version
+	req.ApiName = "QuerySendDetails"
+	req.QueryParams["RegionId"] = s.RegionId
+	req.QueryParams["PhoneNumber"] = phoneNumber
+	req.QueryParams["BizId"] = bizId
 
 	res, err := client.ProcessCommonRequest(req)
 	if err != nil {
