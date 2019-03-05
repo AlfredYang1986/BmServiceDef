@@ -64,3 +64,34 @@ func (r BmRedis) PushToken(token string, exptime time.Duration) error {
 	fmt.Println(token)
 	return err
 }
+
+func (r BmRedis) PushPhoneCode(phone string, code string, exptime time.Duration) error {
+	client := r.GetRedisClient()
+	defer client.Close()
+
+	pipe := client.Pipeline()
+
+	pipe.Append(phone, code)
+	pipe.Expire(phone, exptime)
+
+	_, err := pipe.Exec()
+	fmt.Println(phone, "#", code)
+	return err
+}
+
+func (r BmRedis) GetPhoneCode(phone string) (string, error) {
+	client := r.GetRedisClient()
+	defer client.Close()
+
+	code, err := client.Get(phone).Result()
+
+	if err == redis.Nil {
+		return "", errors.New("phoneCode expired")
+	} else if err != nil {
+		fmt.Println(err.Error())
+		panic(err)
+		return "", err
+	} else {
+		return code, nil
+	}
+}

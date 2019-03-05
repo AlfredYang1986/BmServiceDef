@@ -1,7 +1,6 @@
 package BmSms
 
 import (
-	"fmt"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/requests"
 	"github.com/aliyun/alibaba-cloud-sdk-go/sdk/responses"
@@ -55,7 +54,6 @@ func (s BmSms) SendMsg(phoneNumber string, rcode string) (error, *responses.Comm
 	if err != nil {
 		panic(err.Error())
 	}
-	fmt.Print(res.GetHttpContentString())
 	return err, res
 }
 
