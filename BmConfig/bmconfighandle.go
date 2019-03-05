@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -46,9 +47,10 @@ func GetConfigMap(configPath string) map[string]interface{} {
 	return configMap
 }
 
-func BMGetConfigMap(configPath string) map[string]interface{} {
+func BmGetConfigMap(configPath string) map[string]interface{} {
 	var configMap map[string]interface{}
 	b, _ := ioutil.ReadFile(configPath)
+	fmt.Println(configPath)
 	if err := json.Unmarshal(b, &configMap); err != nil {
 		panic(err)
 	}

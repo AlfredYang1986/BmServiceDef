@@ -13,7 +13,7 @@ type BmRouterConfig struct {
 func (br *BmRouterConfig) GenerateConfig(envHome string) {
 	bmHome := os.Getenv(envHome)
 	configPath := bmHome + "/resource/routerconfig.json"
-	profileItems := BMGetConfigMap(configPath)
+	profileItems := BmGetConfigMap(configPath)
 
 	br.Host = profileItems["Host"].(string)
 	br.Port = profileItems["Port"].(string)

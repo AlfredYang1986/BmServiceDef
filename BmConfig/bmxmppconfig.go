@@ -17,7 +17,7 @@ type BmXmppConfig struct {
 func (xc *BmXmppConfig) GenerateConfig(envHome string) {
 	bmHome := os.Getenv(envHome)
 	configPath := bmHome + "resource/xmppconfig.json"
-	profileItems := BMGetConfigMap(configPath)
+	profileItems := BmGetConfigMap(configPath)
 
 	xc.Host = profileItems["Host"].(string)
 	xc.Port = profileItems["Port"].(string)
