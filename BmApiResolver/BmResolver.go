@@ -25,6 +25,6 @@ func (m RequestURL) GetBaseURL() string {
 	}
 
 	//return fmt.Sprintf("https://api.dongdakid.com")
-	return fmt.Sprintf("http://%s", m.Addr)
-	//return fmt.Sprintf("")
+	//return fmt.Sprintf("http://%s", m.Addr)
+	return fmt.Sprintf("")
 }
