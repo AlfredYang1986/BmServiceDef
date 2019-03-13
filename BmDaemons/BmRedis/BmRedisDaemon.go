@@ -71,8 +71,7 @@ func (r BmRedis) PushPhoneCode(phone string, code string, exptime time.Duration)
 
 	pipe := client.Pipeline()
 
-	pipe.Append(phone, code)
-	pipe.Expire(phone, exptime)
+	pipe.Set(phone, code, exptime)
 
 	_, err := pipe.Exec()
 	fmt.Println(phone, "#", code)
