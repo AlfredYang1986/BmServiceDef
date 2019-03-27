@@ -149,7 +149,7 @@ func (p *Pod) CreateMiddleInstances() {
 			args = append(args, tmp)
 		}
 
-		inc, _ := BmSingleton.GetFactoryInstance().ReflectFunctionCall(any, constuctor, args)
+		inc, _ := BmSingleton.GetFactoryInstance().ReflectFunctionCall(any, constuctor, args, r.Args)
 		v := inc.Interface()
 		p.Middleware[r.Name] = v.(BmMiddleware.BmMiddleware)
 	}
