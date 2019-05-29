@@ -21,6 +21,8 @@ const (
 type BmMongodb struct {
 	Host     string
 	Port     string
+	User     string
+	Pass     string
 	Database string
 }
 
@@ -31,11 +33,18 @@ func (m BmMongodb) NewMongoDBDaemon(args map[string]string) *BmMongodb {
 	return &BmMongodb{
 		Host:     args["host"],
 		Port:     args["port"],
+		User:     args["user"],
+		Pass:     args["pass"],
 		Database: args["database"]}
 }
 
 func (m *BmMongodb) InsertBmObject(ptr BmModel.BmModelBase) (string, error) {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
+
 	if err != nil {
 		return "", errors.New("dial db error")
 	}
@@ -72,7 +81,11 @@ func (m *BmMongodb) InsertBmObject(ptr BmModel.BmModelBase) (string, error) {
 }
 
 func (m *BmMongodb) ExistsBmObject(ptr BmModel.BmModelBase, out BmModel.BmModelBase) (bool, error) {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return false, errors.New("dial db error")
 	}
@@ -93,7 +106,11 @@ func (m *BmMongodb) ExistsBmObject(ptr BmModel.BmModelBase, out BmModel.BmModelB
 }
 
 func (m *BmMongodb) FindOne(ptr BmModel.BmModelBase, out BmModel.BmModelBase) error {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return errors.New("dial db error")
 	}
@@ -114,7 +131,11 @@ func (m *BmMongodb) FindOne(ptr BmModel.BmModelBase, out BmModel.BmModelBase) er
 }
 
 func (m *BmMongodb) FindMulti(r api2go.Request, ptr BmModel.BmModelBase, out interface{}, skip int, take int) error {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return errors.New("dial db error")
 	}
@@ -138,7 +159,11 @@ func (m *BmMongodb) FindMulti(r api2go.Request, ptr BmModel.BmModelBase, out int
 }
 
 func (m *BmMongodb) Delete(ptr BmModel.BmModelBase) error {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return errors.New("dial db error")
 	}
@@ -157,7 +182,11 @@ func (m *BmMongodb) Delete(ptr BmModel.BmModelBase) error {
 }
 
 func (m *BmMongodb) Update(ptr BmModel.BmModelBase) error {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return errors.New("dial db error")
 	}
@@ -178,7 +207,11 @@ func (m *BmMongodb) Update(ptr BmModel.BmModelBase) error {
 }
 
 func (m *BmMongodb) Query (condi bson.M, tName string, ptr BmModel.BmModelBase) error {
-		session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return errors.New("dial db error")
 	}
@@ -196,7 +229,11 @@ func (m *BmMongodb) Query (condi bson.M, tName string, ptr BmModel.BmModelBase) 
 }
 
 func (m *BmMongodb) Count(r api2go.Request, ptr BmModel.BmModelBase) (int, error) {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return 0, errors.New("dial db error")
 	}
@@ -313,7 +350,11 @@ func Struct2map(v reflect.Value) (map[string]interface{}, error) {
 
 // FindOneByCondition TODO 临时，稍后与老铁一起重写
 func (m *BmMongodb) FindOneByCondition(ptr BmModel.BmModelBase, out BmModel.BmModelBase, cond bson.M) error {
-	session, err := mgo.Dial(m.Host + ":" + m.Port)
+	url := fmt.Sprint(m.Host, ":", m.Port, "/", m.Database)
+	if m.User != "" && m.Pass != "" {
+		url = fmt.Sprint("mongodb://", m.User, ":", m.Pass, "@", m.Host, ":", m.Port, "/", m.Database)
+	}
+	session, err := mgo.Dial(url)
 	if err != nil {
 		return errors.New("dial db error")
 	}
